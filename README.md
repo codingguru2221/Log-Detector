@@ -179,4 +179,6 @@ Contributions welcome! Fork the repo and submit a pull request for review.
 ---
 
 ⚡ This tool provides **real-time situational awareness, secure log monitoring, and proactive threat detection** in offline environments, making it ideal for **air-gapped networks**.
-## Done By Veerendra Vishwakarma(TheCodex)
+
+## Done By Team The-Codex
+A team of **innovators** and **up-minded** coding buddies.
