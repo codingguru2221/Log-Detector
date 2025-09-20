@@ -179,12 +179,4 @@ Contributions welcome! Fork the repo and submit a pull request for review.
 ---
 
 ⚡ This tool provides **real-time situational awareness, secure log monitoring, and proactive threat detection** in offline environments, making it ideal for **air-gapped networks**.
-
-```
-
----
-
-✅ With this correction, the **Mermaid diagram in Phase 4 will render without errors**.  
-
-Do you also want me to **beautify Phase 4** (e.g., make "Generate Report" a different shape like a parallelogram for reports)?
-```
+## Done By Veerendra Vishwakarma(TheCodex)
