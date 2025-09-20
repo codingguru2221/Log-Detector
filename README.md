@@ -1,23 +1,24 @@
+# 🔒 DarkEye
 
-# 🔒 Portable Offline Log Analysis Tool
+### *Portable Offline Log Analysis Tool for Air-Gapped Security*
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/your-username/log-analysis-tool)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/your-username/DarkEye)
 [![Java Version](https://img.shields.io/badge/java-17+-orange)](https://www.java.com/)
 
 ---
 
 ## 📌 Overview
 
-The **Portable Offline Log Analysis Tool** is a **cross-platform Java application** built for **air-gapped or isolated networks** where **data security is critical**.  
+**DarkEye** is a **cross-platform Java application** built for **air-gapped or isolated networks** where **data security is critical**.
 
 It enables a lightweight, SOC-like capability offline:
 
-- Collect system and network logs
-- Parse & normalize logs into structured formats
-- Detect suspicious activity via rules, heuristics, and anomaly detection
-- Generate real-time popup alerts
-- Store logs securely with AES encryption
-- Maintain full offline functionality — **no cloud dependencies**
+* Collect system and network logs
+* Parse & normalize logs into structured formats
+* Detect suspicious activity via rules, heuristics, and anomaly detection
+* Generate real-time popup alerts
+* Store logs securely with AES encryption
+* Maintain full offline functionality — **no cloud dependencies**
 
 ---
 
