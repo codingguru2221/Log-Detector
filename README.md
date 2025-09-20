@@ -1,69 +1,77 @@
 
-
 # 🔒 Portable Offline Log Analysis Tool
+
+
+
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/your-username/log-analysis-tool)
+[![Java Version](https://img.shields.io/badge/java-17+-orange)](https://www.java.com/)
+
+---
 
 ## 📌 Overview
 
-The **Portable Offline Log Analysis Tool** is a cross-platform Java application designed for **air-gapped / isolated networks** where data leakage must be nearly impossible.
-It provides a lightweight, self-contained Security Operations Center (SOC)-like capability that can:
+The **Portable Offline Log Analysis Tool** is a **cross-platform Java application** built for **air-gapped or isolated networks** where **data security is critical**.  
 
-* Collect system and network logs,
-* Parse and normalize them into a structured format,
-* Detect suspicious activity using rule-based, signature, heuristic, and anomaly detection,
-* Generate real-time alerts via popup notifications,
-* Store all logs securely using encryption so that only authenticated users can access them.
+It enables a lightweight, SOC-like capability offline:
 
-This tool is completely **offline** and requires **no cloud dependency**, ensuring data privacy and full functionality in restricted environments.
+- Collect system and network logs
+- Parse & normalize logs into structured formats
+- Detect suspicious activity via rules, heuristics, and anomaly detection
+- Generate real-time popup alerts
+- Store logs securely with AES encryption
+- Maintain full offline functionality — **no cloud dependencies**
 
 ---
 
 ## ✨ Key Features
 
-* **Cross-Platform Portability** → Runs on Windows, Linux, and macOS with minimal setup.
-* **Multi-source Log Collection** → Collect logs from system files, syslog (UDP/TCP), FTP, or USB imports.
-* **Parsing & Normalization** → Converts heterogeneous log formats into a unified schema.
-* **Threat Detection** → Identifies malicious behavior using:
-
-  * Rule/Signature-based matching (TTPs)
-  * Heuristic checks
-  * Simple anomaly detection (event frequency spikes, unusual access patterns)
-* **Real-Time Alerts** → Popup notifications for suspicious activity.
-* **Secure Log Storage** → AES-encrypted database, access restricted to authenticated users.
-* **User Interface** → JavaFX-based dashboard for viewing logs, alerts, and reports.
-* **Offline Updates** → Rules and threat intelligence feeds can be imported via USB or local files.
-* **Reporting** → Generate and export security reports in CSV/PDF.
+- **Cross-Platform Portability** – Windows, Linux, macOS
+- **Multi-source Log Collection** – System files, syslog, FTP, USB
+- **Parsing & Normalization** – Unified schema for heterogeneous logs
+- **Threat Detection**:
+  - Rule/Signature-based (TTPs)
+  - Heuristic analysis
+  - Anomaly detection (spikes, unusual access)
+- **Real-Time Alerts** – Desktop notifications for suspicious activity
+- **Secure Log Storage** – AES-256-GCM encrypted DB
+- **UI** – JavaFX dashboard for live monitoring, alerts, reports
+- **Offline Updates** – Import rules and threat feeds via USB/local files
+- **Reporting** – Export logs & reports in CSV or PDF
 
 ---
 
 ## 🏗️ System Architecture
 
 ```
-Collectors  →  Parsers  →  Normalizer  →  Encrypted Storage  
-                       ↘→ Detection Engine → Alerts (Popup/UI)
+
+Collectors → Parsers → Normalizer → Encrypted Storage
+                          ↘→ Detection Engine → Alerts (Popup/UI)
+
 ```
 
 **Core Modules:**
 
-* **Collectors:** SyslogCollector, FileCollector, USBCollector, FTPCollector
-* **Parsers:** SyslogParser, WindowsEventParser, ApacheLogParser
-* **Detection:** RuleEngine, AnomalyDetector
-* **Security:** Authentication, Encryption (AES-GCM), Key Management
-* **UI:** JavaFX dashboard (login, live events, alerts, reports)
+- **Collectors:** SyslogCollector, FileCollector, USBCollector, FTPCollector
+- **Parsers:** SyslogParser, WindowsEventParser, ApacheLogParser
+- **Detection:** RuleEngine, AnomalyDetector
+- **Security:** Authentication, AES Encryption, Key Management
+- **UI:** JavaFX dashboard (login, live events, alerts, reports)
 
 ---
 
 ## 🛡️ Security Highlights
 
-* AES-256-GCM encrypted log storage
-* Password hashing with Argon2/Bcrypt
-* Role-based access control (Admin, Analyst, Viewer)
-* No external network connections → **air-gapped safe**
+- AES-256-GCM encrypted log storage
+- Password hashing (Argon2 / Bcrypt)
+- Role-based access control (Admin, Analyst, Viewer)
+- No network connections → fully air-gapped
 
 ---
 
 ## 📂 Project Structure
 
 ```
+
 log-analysis-tool/
 ├── src/main/java/com/sih/logtool/
 │   ├── collectors/       # Log collectors
@@ -77,7 +85,8 @@ log-analysis-tool/
 │   ├── rules/            # Detection rules (JSON/YAML)
 │   └── config/           # Config files
 └── README.md
-```
+
+````
 
 ---
 
@@ -85,9 +94,9 @@ log-analysis-tool/
 
 ### Prerequisites
 
-* Java 17+
-* Maven or Gradle
-* (Optional) Git installed
+- Java 17+
+- Maven or Gradle
+- (Optional) Git
 
 ### Installation
 
@@ -98,7 +107,7 @@ cd log-analysis-tool
 
 # Build project
 mvn clean install
-```
+````
 
 ### Running the Application
 
@@ -106,25 +115,76 @@ mvn clean install
 java -jar target/log-analysis-tool.jar
 ```
 
-
+---
 
 ## 📊 Example Use Case
 
-1. Import system and firewall logs via USB into the tool.
-2. The parser normalizes logs into a structured format.
-3. The detection engine identifies multiple failed login attempts from a suspicious IP.
-4. A **popup alert** is triggered on the analyst’s system.
-5. Logs remain **AES-encrypted** in the database, accessible only to authenticated users.
-6. Analyst exports a **security report (PDF/CSV)** for further action.
+1. Import system/firewall logs via USB.
+2. Logs are normalized into structured format.
+3. Detection engine flags suspicious IP activity.
+4. **Popup alert** notifies analyst.
+5. Logs remain **AES-encrypted** in the database.
+6. Analyst exports a **security report** (CSV/PDF).
 
+---
 
+## ⚙️ Complete Project Workflow (Mermaid Diagrams)
+
+### **Phase 1: System Initialization**
+
+```mermaid
+graph LR
+    A[User Inserts USB / Starts App] --> B[Java App Launches]
+    B --> C[User Authentication & Role Check]
+    C --> D{Valid User?}
+    D -->|No| E[Access Denied & Exit]
+    D -->|Yes| F[Initialize Security Layer]
+```
+
+### **Phase 2: Log Collection & Parsing**
+
+```mermaid
+graph LR
+    F[Initialize Security Layer] --> G[Collect Logs from System/Network/USB]
+    G --> H[Parse & Normalize Logs]
+    H --> I[Store Logs Encrypted (AES-GCM)]
+```
+
+### **Phase 3: Threat Detection**
+
+```mermaid
+graph LR
+    H[Parse & Normalize Logs] --> J[Detection Engine]
+    J --> K{Suspicious Activity?}
+    K -->|No| L[Continue Monitoring]
+    K -->|Yes| M[Trigger Alerts & Notifications]
+```
+
+### **Phase 4: Reporting & Monitoring**
+
+```mermaid
+graph LR
+    M[Trigger Alerts & Notifications] --> N[Generate Report (CSV/PDF)]
+    L[Continue Monitoring] --> O[Dashboard View]
+    N --> O
+    O --> P[Monitoring Continues...]
+```
+
+---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please fork this repository and create a pull request for review.
+Contributions welcome! Fork the repo and submit a pull request for review.
 
-⚡ With this tool, organizations operating in isolated networks can achieve **real-time situational awareness, secure log monitoring, and proactive cyber threat detection** — without depending on cloud or external services.
+---
 
+⚡ This tool provides **real-time situational awareness, secure log monitoring, and proactive threat detection** in offline environments, making it ideal for **air-gapped networks**.
 
+```
 
-Do you want me to also add **badges (like build status, license, Java version)** and a **logo/banner** section at the top so your GitHub repo looks more professional?
+---
+
+If you want, I can also **create a single combined Mermaid diagram** that shows all four phases in **one big workflow**, so your README will have **one neat full overview** instead of separate phase diagrams.  
+
+Do you want me to do that next?
+```
