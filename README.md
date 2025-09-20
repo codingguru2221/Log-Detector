@@ -1,8 +1,6 @@
 
 # 🔒 Portable Offline Log Analysis Tool
 
-
-
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/your-username/log-analysis-tool)
 [![Java Version](https://img.shields.io/badge/java-17+-orange)](https://www.java.com/)
 
@@ -25,18 +23,18 @@ It enables a lightweight, SOC-like capability offline:
 
 ## ✨ Key Features
 
-- **Cross-Platform Portability** – Windows, Linux, macOS
-- **Multi-source Log Collection** – System files, syslog, FTP, USB
-- **Parsing & Normalization** – Unified schema for heterogeneous logs
+- **Cross-Platform Portability** – Windows, Linux, macOS  
+- **Multi-source Log Collection** – System files, syslog, FTP, USB  
+- **Parsing & Normalization** – Unified schema for heterogeneous logs  
 - **Threat Detection**:
   - Rule/Signature-based (TTPs)
   - Heuristic analysis
   - Anomaly detection (spikes, unusual access)
-- **Real-Time Alerts** – Desktop notifications for suspicious activity
-- **Secure Log Storage** – AES-256-GCM encrypted DB
-- **UI** – JavaFX dashboard for live monitoring, alerts, reports
-- **Offline Updates** – Import rules and threat feeds via USB/local files
-- **Reporting** – Export logs & reports in CSV or PDF
+- **Real-Time Alerts** – Desktop notifications for suspicious activity  
+- **Secure Log Storage** – AES-256-GCM encrypted DB  
+- **UI** – JavaFX dashboard for live monitoring, alerts, reports  
+- **Offline Updates** – Import rules and threat feeds via USB/local files  
+- **Reporting** – Export logs & reports in CSV or PDF  
 
 ---
 
@@ -51,20 +49,20 @@ Collectors → Parsers → Normalizer → Encrypted Storage
 
 **Core Modules:**
 
-- **Collectors:** SyslogCollector, FileCollector, USBCollector, FTPCollector
-- **Parsers:** SyslogParser, WindowsEventParser, ApacheLogParser
-- **Detection:** RuleEngine, AnomalyDetector
-- **Security:** Authentication, AES Encryption, Key Management
-- **UI:** JavaFX dashboard (login, live events, alerts, reports)
+- **Collectors:** SyslogCollector, FileCollector, USBCollector, FTPCollector  
+- **Parsers:** SyslogParser, WindowsEventParser, ApacheLogParser  
+- **Detection:** RuleEngine, AnomalyDetector  
+- **Security:** Authentication, AES Encryption, Key Management  
+- **UI:** JavaFX dashboard (login, live events, alerts, reports)  
 
 ---
 
 ## 🛡️ Security Highlights
 
-- AES-256-GCM encrypted log storage
-- Password hashing (Argon2 / Bcrypt)
-- Role-based access control (Admin, Analyst, Viewer)
-- No network connections → fully air-gapped
+- AES-256-GCM encrypted log storage  
+- Password hashing (Argon2 / Bcrypt)  
+- Role-based access control (Admin, Analyst, Viewer)  
+- No network connections → fully air-gapped  
 
 ---
 
@@ -94,9 +92,9 @@ log-analysis-tool/
 
 ### Prerequisites
 
-- Java 17+
-- Maven or Gradle
-- (Optional) Git
+- Java 17+  
+- Maven or Gradle  
+- (Optional) Git  
 
 ### Installation
 
@@ -134,10 +132,10 @@ java -jar target/log-analysis-tool.jar
 
 ```mermaid
 graph LR
-    A[User Inserts USB / Starts App] --> B[Java App Launches]
+    A[User Inserts USB or Starts App] --> B[Java App Launches]
     B --> C[User Authentication & Role Check]
     C --> D{Valid User?}
-    D -->|No| E[Access Denied & Exit]
+    D -->|No| E[Access Denied and Exit]
     D -->|Yes| F[Initialize Security Layer]
 ```
 
@@ -145,29 +143,30 @@ graph LR
 
 ```mermaid
 graph LR
-    F[Initialize Security Layer] --> G[Collect Logs from System/Network/USB]
-    G --> H[Parse & Normalize Logs]
-    H --> I[Store Logs Encrypted (AES-GCM)]
+    F[Initialize Security Layer] --> G[Collect Logs from System, Network, or USB]
+    G --> H[Parse and Normalize Logs]
+    H --> I[Store Logs Encrypted]
 ```
 
 ### **Phase 3: Threat Detection**
 
 ```mermaid
 graph LR
-    H[Parse & Normalize Logs] --> J[Detection Engine]
+    H[Parse and Normalize Logs] --> J[Detection Engine]
     J --> K{Suspicious Activity?}
     K -->|No| L[Continue Monitoring]
-    K -->|Yes| M[Trigger Alerts & Notifications]
+    K -->|Yes| M[Trigger Alerts and Notifications]
 ```
 
 ### **Phase 4: Reporting & Monitoring**
 
 ```mermaid
 graph LR
-    M[Trigger Alerts & Notifications] --> N[Generate Report (CSV/PDF)]
-    L[Continue Monitoring] --> O[Dashboard View]
+    M[Trigger Alerts and Notifications] --> N["Generate Report (CSV or PDF)"]
+    L[Continue Monitoring] --> O[View Dashboard]
     N --> O
-    O --> P[Monitoring Continues...]
+    O --> P[Monitoring Continues]
+
 ```
 
 ---
@@ -184,7 +183,7 @@ Contributions welcome! Fork the repo and submit a pull request for review.
 
 ---
 
-If you want, I can also **create a single combined Mermaid diagram** that shows all four phases in **one big workflow**, so your README will have **one neat full overview** instead of separate phase diagrams.  
+✅ With this correction, the **Mermaid diagram in Phase 4 will render without errors**.  
 
-Do you want me to do that next?
+Do you also want me to **beautify Phase 4** (e.g., make "Generate Report" a different shape like a parallelogram for reports)?
 ```
