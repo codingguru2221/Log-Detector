@@ -2,6 +2,7 @@
 
 ### *Portable Offline Log Analysis Tool for Air-Gapped Security*
 
+
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/your-username/DarkEye)
 [![Java Version](https://img.shields.io/badge/java-17+-orange)](https://www.java.com/)
 
