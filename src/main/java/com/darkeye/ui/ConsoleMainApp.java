@@ -206,9 +206,42 @@ public class ConsoleMainApp {
         System.out.println("Launching GUI...");
         Thread fxThread = new Thread(() -> {
             try {
-                SimpleMainApp.main(new String[0]);
-            } catch (Exception e) {
+                // Try to initialize JavaFX toolkit reflectively (avoids compile-time dependency)
+                boolean jfxAvailable = true;
+                try {
+                    Class<?> jfxPanelCls = Class.forName("javafx.embed.swing.JFXPanel");
+                    jfxPanelCls.getConstructor().newInstance();
+                } catch (ClassNotFoundException cnf) {
+                    jfxAvailable = false;
+                } catch (Throwable t) {
+                    System.err.println("Warning: JavaFX toolkit init via JFXPanel failed: " + t.getMessage());
+                }
+
+                if (jfxAvailable) {
+                    // Invoke SimpleMainApp.main(String[]) reflectively to start the JavaFX GUI
+                    try {
+                        Class<?> appClass = Class.forName("com.darkeye.ui.SimpleMainApp");
+                        java.lang.reflect.Method mainMethod = appClass.getMethod("main", String[].class);
+                        String[] args = new String[0];
+                        mainMethod.invoke(null, (Object) args);
+                    } catch (ClassNotFoundException cnf) {
+                        System.err.println("SimpleMainApp class not found: " + cnf.getMessage());
+                    } catch (Throwable e) {
+                        System.err.println("Failed to invoke SimpleMainApp.main: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                } else {
+                    // Fallback to Swing UI
+                    try {
+                        com.darkeye.ui.SwingAdminApp.main(new String[0]);
+                    } catch (Throwable t) {
+                        System.err.println("Failed to launch Swing fallback UI: " + t.getMessage());
+                    }
+                }
+
+            } catch (Throwable e) {
                 System.err.println("Failed to launch GUI: " + e.getMessage());
+                e.printStackTrace();
             }
         }, "DarkEye-JavaFX-Launcher");
         fxThread.setDaemon(true);
