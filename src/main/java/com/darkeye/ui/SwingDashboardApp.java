@@ -20,6 +20,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+// JavaFX embedding
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+import javafx.scene.Scene;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
+import javafx.scene.layout.VBox;
+
 /**
  * Rich Swing dashboard implementing requested layout:
  * - Top menu with Key options (Create / Recover)
@@ -39,6 +48,10 @@ public class SwingDashboardApp {
     private JPanel alertsPanel;
     private ScheduledExecutorService generator = Executors.newSingleThreadScheduledExecutor();
     private Random random = new Random();
+    // JavaFX chart integration
+    private JFXPanel fxChartPanel;
+    private XYChart.Series<Number, Number> series;
+    private volatile int chartX = 0;
 
     public static void main(String[] args) {
         // Try Nimbus L&F for a modern look
@@ -74,6 +87,9 @@ public class SwingDashboardApp {
 
         // Start demo live events
         startDemoGenerator();
+
+    // initialize JavaFX chart panel after frame exists
+    initFxChart();
 
         frame.setVisible(true);
     }
@@ -157,8 +173,19 @@ public class SwingDashboardApp {
         actionsPanel.add(exportBtn);
         actionsPanel.add(quarantineBtn);
 
-        rightPanel.add(alertsScroll, BorderLayout.CENTER);
-        rightPanel.add(actionsPanel, BorderLayout.SOUTH);
+    // JavaFX chart panel above actions
+    fxChartPanel = new JFXPanel();
+    fxChartPanel.setPreferredSize(new Dimension(320, 200));
+    JPanel fxContainer = new JPanel(new BorderLayout());
+    fxContainer.setBorder(BorderFactory.createTitledBorder("Live Metrics"));
+    fxContainer.add(fxChartPanel, BorderLayout.CENTER);
+
+    JPanel rightSouth = new JPanel(new BorderLayout(6,6));
+    rightSouth.add(fxContainer, BorderLayout.CENTER);
+    rightSouth.add(actionsPanel, BorderLayout.SOUTH);
+
+    rightPanel.add(alertsScroll, BorderLayout.CENTER);
+    rightPanel.add(rightSouth, BorderLayout.SOUTH);
 
         // Split center/right vertically
         JSplitPane centerRight = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, centerScroll, rightPanel);
@@ -222,6 +249,8 @@ public class SwingDashboardApp {
                     addAlertCard("High Score on " + d.id, "Metric " + metric + " reported score " + (int) score);
                     showNotification("High Priority Alert", d.id + ": " + metric + " -> " + (int) score, true);
                 }
+                // push to JavaFX live chart (metric value)
+                pushChartPoint(value);
             });
         };
 
@@ -382,6 +411,46 @@ public class SwingDashboardApp {
         g.fillOval(2, 2, 12, 12);
         g.dispose();
         return img;
+    }
+
+    // --- JavaFX chart helpers ---
+    private void initFxChart() {
+        // Ensure JavaFX platform is started
+        Platform.runLater(() -> {
+            try {
+                NumberAxis xAxis = new NumberAxis();
+                NumberAxis yAxis = new NumberAxis(0, 100, 10);
+                xAxis.setLabel("Time");
+                yAxis.setLabel("Metric Value");
+
+                LineChart<Number, Number> chart = new LineChart<>(xAxis, yAxis);
+                chart.setLegendVisible(false);
+                chart.setAnimated(false);
+                chart.setCreateSymbols(false);
+                chart.setTitle("Live Metric (simulated)");
+
+                series = new XYChart.Series<>();
+                chart.getData().add(series);
+
+                VBox root = new VBox(chart);
+                root.setSpacing(4);
+                Scene scene = new Scene(root, 320, 200);
+                fxChartPanel.setScene(scene);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+    }
+
+    private void pushChartPoint(double value) {
+        // push point to FX thread; keep only last 60 points
+        if (series == null) return;
+        Platform.runLater(() -> {
+            series.getData().add(new XYChart.Data<>(chartX++, value));
+            if (series.getData().size() > 60) {
+                series.getData().remove(0);
+            }
+        });
     }
 
     // --- Helper classes ---

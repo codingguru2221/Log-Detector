@@ -218,25 +218,31 @@ public class ConsoleMainApp {
                 }
 
                 if (jfxAvailable) {
-                    // Invoke SimpleMainApp.main(String[]) reflectively to start the JavaFX GUI
+                    System.out.println("JavaFX detected -> launching full JavaFX EnhancedMainApp UI...");
+                    // Invoke EnhancedMainApp.main(String[]) reflectively to start the full JavaFX GUI
                     try {
-                        Class<?> appClass = Class.forName("com.darkeye.ui.SimpleMainApp");
+                        Class<?> appClass = Class.forName("com.darkeye.ui.EnhancedMainApp");
                         java.lang.reflect.Method mainMethod = appClass.getMethod("main", String[].class);
                         String[] args = new String[0];
                         mainMethod.invoke(null, (Object) args);
+                        return;
                     } catch (ClassNotFoundException cnf) {
-                        System.err.println("SimpleMainApp class not found: " + cnf.getMessage());
+                        System.err.println("EnhancedMainApp class not found: " + cnf.getMessage());
                     } catch (Throwable e) {
-                        System.err.println("Failed to invoke SimpleMainApp.main: " + e.getMessage());
+                        System.err.println("Failed to invoke EnhancedMainApp.main: " + e.getMessage());
                         e.printStackTrace();
                     }
-                } else {
-                    // Fallback to Swing UI
-                    try {
-                        com.darkeye.ui.SwingAdminApp.main(new String[0]);
-                    } catch (Throwable t) {
-                        System.err.println("Failed to launch Swing fallback UI: " + t.getMessage());
-                    }
+                    // If EnhancedMainApp fails for any reason, fall through to fallback below
+                }
+
+                // If JavaFX not available or starting EnhancedMainApp failed, explain and offer fallback
+                System.err.println("Full JavaFX UI is not available in this environment.");
+                System.err.println("To use the full UI, ensure JavaFX is on the runtime classpath or run the shaded jar produced by Maven.");
+                System.err.println("Falling back to the lightweight Swing admin UI.");
+                try {
+                    com.darkeye.ui.SwingAdminApp.main(new String[0]);
+                } catch (Throwable t) {
+                    System.err.println("Failed to launch Swing fallback UI: " + t.getMessage());
                 }
 
             } catch (Throwable e) {

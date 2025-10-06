@@ -18,6 +18,8 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javafx.version>21.0.1</javafx.version>
+    <!-- Platform classifier for JavaFX native artifacts. Set to 'win' for Windows, 'linux' or 'mac' as needed -->
+    <javafx.platform>win</javafx.platform>
         <jackson.version>2.15.2</jackson.version>
         <jbcrypt.version>0.4</jbcrypt.version>
         <easy-rules.version>4.1.0</easy-rules.version>
@@ -37,11 +39,13 @@
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>${javafx.version}</version>
+            <classifier>${javafx.platform}</classifier>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
             <version>${javafx.version}</version>
+            <classifier>${javafx.platform}</classifier>
         </dependency>
 
         <!-- Database -->
@@ -171,7 +175,9 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.darkeye.ui.EnhancedMainApp</mainClass>
+                                    <!-- Use the console launcher as the default entry point. It will detect JavaFX and
+                                         launch the full JavaFX UI when available, otherwise fall back to Swing. -->
+                                    <mainClass>com.darkeye.ui.ConsoleEnhancedApp</mainClass>
                                 </transformer>
                             </transformers>
                             <filters>
@@ -193,6 +199,15 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
+                <configuration>
+                    <mainClass>com.darkeye.ui.EnhancedMainApp</mainClass>
+                </configuration>
+            </plugin>
+            <!-- Plugin to run JavaFX applications using the module path and proper native libs -->
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.8</version>
                 <configuration>
                     <mainClass>com.darkeye.ui.EnhancedMainApp</mainClass>
                 </configuration>

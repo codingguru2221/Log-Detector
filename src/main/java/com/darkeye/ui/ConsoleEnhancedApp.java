@@ -311,15 +311,17 @@ public class ConsoleEnhancedApp {
                 }
 
                 if (jfxAvailable) {
+                    System.out.println("JavaFX detected -> launching full JavaFX EnhancedMainApp UI...");
                     try {
-                        Class<?> appClass = Class.forName("com.darkeye.ui.SimpleMainApp");
+                        Class<?> appClass = Class.forName("com.darkeye.ui.EnhancedMainApp");
                         java.lang.reflect.Method mainMethod = appClass.getMethod("main", String[].class);
                         String[] args = new String[0];
                         mainMethod.invoke(null, (Object) args);
+                        return;
                     } catch (ClassNotFoundException cnf) {
-                        System.err.println("SimpleMainApp class not found: " + cnf.getMessage());
+                        System.err.println("EnhancedMainApp class not found: " + cnf.getMessage());
                     } catch (Throwable e) {
-                        System.err.println("Failed to invoke SimpleMainApp.main: " + e.getMessage());
+                        System.err.println("Failed to invoke EnhancedMainApp.main: " + e.getMessage());
                         e.printStackTrace();
                     }
                 } else {

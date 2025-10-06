@@ -58,10 +58,6 @@ public class EnhancedMainApp extends Application {
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        
-        // Start background monitoring immediately
-        startBackgroundMonitoring();
-        
         // Show authentication dialog
         showAuthenticationDialog();
     }
@@ -249,6 +245,8 @@ public class EnhancedMainApp extends Application {
         Scene scene = new Scene(mainLayout, 1200, 800);
         primaryStage.setScene(scene);
         primaryStage.show();
+        // Start background monitoring after UI is visible so UI components (labels, lists) are initialized
+        startBackgroundMonitoring();
     }
     
     /**
