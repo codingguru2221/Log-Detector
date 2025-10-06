@@ -10,7 +10,7 @@ run-darkeye-final.bat
 
 ## 📋 Workflow
 
-1. **Authentication**: Enter password `admin123`
+1. **Authentication**: Enter password `Codex`
 2. **Background Monitoring**: Starts automatically monitoring `sample-logs` directory
 3. **Real-time Alerts**: Shows popup notifications for threats
 4. **Interactive Menu**: Manage monitoring and view statistics

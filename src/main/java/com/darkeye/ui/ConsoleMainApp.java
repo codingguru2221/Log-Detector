@@ -23,7 +23,7 @@ public class ConsoleMainApp {
     private static int logCount = 0;
     
     // Simple authentication
-    private static final String ADMIN_PASSWORD = "admin123";
+    private static final String ADMIN_PASSWORD = "Codex";
     
     public static void main(String[] args) {
         System.out.println("🚀 DarkEye - Console Log Analysis System");
@@ -118,6 +118,7 @@ public class ConsoleMainApp {
             System.out.println("3. Add blacklisted IP");
             System.out.println("4. View statistics");
             System.out.println("5. Exit");
+            System.out.println("6. Launch GUI (JavaFX)");
             System.out.println();
             System.out.print("Enter command (1-5): ");
             
@@ -140,6 +141,9 @@ public class ConsoleMainApp {
                     System.out.println("👋 Shutting down DarkEye...");
                     shutdown();
                     return;
+                case "6":
+                    launchGUI();
+                    break;
                 default:
                     System.out.println("❌ Invalid command. Please enter 1-5.");
             }
@@ -197,5 +201,17 @@ public class ConsoleMainApp {
             fileCollector.stop();
         }
         System.out.println("✅ DarkEye shutdown complete.");
+    }
+    private static void launchGUI() {
+        System.out.println("Launching GUI...");
+        Thread fxThread = new Thread(() -> {
+            try {
+                SimpleMainApp.main(new String[0]);
+            } catch (Exception e) {
+                System.err.println("Failed to launch GUI: " + e.getMessage());
+            }
+        }, "DarkEye-JavaFX-Launcher");
+        fxThread.setDaemon(true);
+        fxThread.start();
     }
 }

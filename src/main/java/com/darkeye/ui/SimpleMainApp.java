@@ -37,7 +37,7 @@ public class SimpleMainApp extends Application {
     private int logCount = 0;
     
     // Simple authentication (in real app, use proper auth)
-    private static final String ADMIN_PASSWORD = "admin123";
+    private static final String ADMIN_PASSWORD = "Codex";
     private boolean isAuthenticated = false;
     
     @Override
@@ -177,7 +177,14 @@ public class SimpleMainApp extends Application {
                 executor.schedule(() -> {
                     Platform.runLater(() -> {
                         authStage.close();
-                        showMainUI();
+                        // If admin, launch enhanced admin dashboard
+                        try {
+                            EnhancedMainApp adminApp = new EnhancedMainApp();
+                            adminApp.launchAsAdmin(primaryStage);
+                        } catch (Exception ex) {
+                            // Fallback to simple UI if enhanced fails
+                            showMainUI();
+                        }
                     });
                 }, 1, TimeUnit.SECONDS);
             } else {
