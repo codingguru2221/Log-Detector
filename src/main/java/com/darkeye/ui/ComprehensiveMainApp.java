@@ -28,12 +28,15 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.time.LocalDateTime;
+import java.time.Duration;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Comprehensive DarkEye application implementing the complete workflow
@@ -66,6 +69,11 @@ public class ComprehensiveMainApp extends Application {
     private boolean isMonitoring = false;
     private int alertCount = 0;
     private int logCount = 0;
+    // Suppress popups for private/local IPs by default (toggleable in Tools menu)
+    private volatile boolean showPopupsForLocalIps = false;
+    // Rate-limit duplicate popups: track last popup time per (rule|sourceIp)
+    private final ConcurrentMap<String, LocalDateTime> lastPopupTimes = new ConcurrentHashMap<>();
+    private static final Duration POPUP_MIN_INTERVAL = Duration.ofMinutes(1);
     
     // UI Elements
     private Label statusLabel;
@@ -253,8 +261,16 @@ public class ComprehensiveMainApp extends Application {
         
         MenuItem viewStatsItem = new MenuItem("View Statistics");
         viewStatsItem.setOnAction(e -> showStatistics());
+
+        // Toggle: Show popups for local/private IPs
+        CheckMenuItem toggleLocalPopupItem = new CheckMenuItem("Show popups for local/private IPs");
+        toggleLocalPopupItem.setSelected(showPopupsForLocalIps);
+        toggleLocalPopupItem.setOnAction(e -> {
+            showPopupsForLocalIps = toggleLocalPopupItem.isSelected();
+            updateStatus("Show popups for local IPs: " + showPopupsForLocalIps);
+        });
         
-        toolsMenu.getItems().addAll(addBlacklistItem, viewStatsItem);
+        toolsMenu.getItems().addAll(addBlacklistItem, viewStatsItem, new SeparatorMenuItem(), toggleLocalPopupItem);
         
         menuBar.getMenus().addAll(fileMenu, monitoringMenu, toolsMenu);
         return menuBar;
@@ -482,9 +498,28 @@ public class ComprehensiveMainApp extends Application {
                 alertList.getItems().remove(alertList.getItems().size() - 1);
             }
             
-            // Show popup for high severity alerts
+            // Show popup for high severity alerts with suppression for local IPs and rate-limiting
             if ("HIGH".equals(alert.getSeverity())) {
-                showAlertPopup(alert);
+                String sourceIp = alert.getDetails() != null && alert.getDetails().get("sourceIp") != null
+                    ? alert.getDetails().get("sourceIp").toString()
+                    : "unknown";
+
+                // Suppress local/private IP popups unless user enabled them
+                if (!showPopupsForLocalIps && isPrivateIp(sourceIp)) {
+                    // Log suppressed popup
+                    logger.info("Suppressed popup for private IP: {} - {}", sourceIp, alert.getTitle());
+                } else {
+                    // Rate-limit duplicates per rule+ip
+                    String key = alert.getRuleName() + "|" + sourceIp;
+                    LocalDateTime last = lastPopupTimes.get(key);
+                    LocalDateTime now = LocalDateTime.now();
+                    if (last == null || Duration.between(last, now).compareTo(POPUP_MIN_INTERVAL) >= 0) {
+                        lastPopupTimes.put(key, now);
+                        showAlertPopup(alert);
+                    } else {
+                        logger.info("Rate-limited duplicate popup for {} (last shown {})", key, last);
+                    }
+                }
             }
         });
     }
@@ -500,6 +535,29 @@ public class ComprehensiveMainApp extends Application {
             alertDialog.setContentText(alert.getDescription());
             alertDialog.showAndWait();
         });
+    }
+
+    /**
+     * Returns true if the IP is in a private/local range (IPv4 simplified)
+     */
+    private boolean isPrivateIp(String ip) {
+        if (ip == null) return true; // treat null as local/internal
+        try {
+            if (ip.startsWith("10.")) return true;
+            if (ip.startsWith("192.168.")) return true;
+            if (ip.startsWith("172.")) {
+                // 172.16.0.0 - 172.31.255.255
+                String[] parts = ip.split("\\.");
+                if (parts.length >= 2) {
+                    int second = Integer.parseInt(parts[1]);
+                    return second >= 16 && second <= 31;
+                }
+            }
+        } catch (Exception e) {
+            // if parsing fails, err on the side of treating as private
+            return true;
+        }
+        return false;
     }
     
     /**
@@ -624,7 +682,7 @@ public class ComprehensiveMainApp extends Application {
                 for (Map.Entry<String, Object> entry : stats.entrySet()) {
                     statsText.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
                 }
-                
+
                 statsText.append("\nDetection Engine Statistics:\n");
                 for (Map.Entry<String, Object> entry : detectionStats.entrySet()) {
                     statsText.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");

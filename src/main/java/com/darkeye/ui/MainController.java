@@ -54,6 +54,10 @@ public class MainController implements Initializable {
     private SimpleDetectionEngine detectionEngine;
     private int alertCount = 0;
     private int logCount = 0;
+    // Popup suppression and rate-limiting for FXML controller
+    private volatile boolean showPopupsForLocalIps = false;
+    private final java.util.concurrent.ConcurrentMap<String, java.time.LocalDateTime> lastPopupTimes = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final java.time.Duration POPUP_MIN_INTERVAL = java.time.Duration.ofMinutes(1);
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -130,7 +134,21 @@ public class MainController implements Initializable {
             
             // Show popup for high severity alerts
             if ("HIGH".equals(alert.getSeverity())) {
-                showAlertPopup(alert);
+                String sourceIp = alert.getDetails() != null && alert.getDetails().get("sourceIp") != null
+                    ? alert.getDetails().get("sourceIp").toString()
+                    : "unknown";
+
+                if (!showPopupsForLocalIps && isPrivateIp(sourceIp)) {
+                    // suppress
+                } else {
+                    String key = alert.getRuleName() + "|" + sourceIp;
+                    java.time.LocalDateTime last = lastPopupTimes.get(key);
+                    java.time.LocalDateTime now = java.time.LocalDateTime.now();
+                    if (last == null || java.time.Duration.between(last, now).compareTo(POPUP_MIN_INTERVAL) >= 0) {
+                        lastPopupTimes.put(key, now);
+                        showAlertPopup(alert);
+                    }
+                }
             }
             
             // Keep only last 100 alerts
@@ -257,5 +275,23 @@ public class MainController implements Initializable {
     
     private Stage getStage() {
         return (Stage) logTable.getScene().getWindow();
+    }
+
+    private boolean isPrivateIp(String ip) {
+        if (ip == null) return true;
+        try {
+            if (ip.startsWith("10.")) return true;
+            if (ip.startsWith("192.168.")) return true;
+            if (ip.startsWith("172.")) {
+                String[] parts = ip.split("\\.");
+                if (parts.length >= 2) {
+                    int second = Integer.parseInt(parts[1]);
+                    return second >= 16 && second <= 31;
+                }
+            }
+        } catch (Exception e) {
+            return true;
+        }
+        return false;
     }
 }

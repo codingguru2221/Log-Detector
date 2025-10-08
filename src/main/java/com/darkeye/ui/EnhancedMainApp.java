@@ -23,6 +23,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 /**
  * Enhanced DarkEye application with comprehensive workflow implementation
@@ -38,6 +42,10 @@ public class EnhancedMainApp extends Application {
     private boolean isMonitoring = false;
     private int alertCount = 0;
     private int logCount = 0;
+    // Popup control and rate-limiting
+    private volatile boolean showPopupsForLocalIps = false;
+    private final ConcurrentMap<String, LocalDateTime> lastPopupTimes = new ConcurrentHashMap<>();
+    private static final Duration POPUP_MIN_INTERVAL = Duration.ofMinutes(1);
     
     // Simple authentication (enhanced)
     private static final String ADMIN_PASSWORD = "Codex";
@@ -286,8 +294,15 @@ public class EnhancedMainApp extends Application {
             
             MenuItem viewStatsItem = new MenuItem("View Statistics");
             viewStatsItem.setOnAction(e -> showStatistics());
-            
-            toolsMenu.getItems().addAll(addBlacklistItem, viewStatsItem);
+
+            CheckMenuItem toggleLocalPopupItem = new CheckMenuItem("Show popups for local/private IPs");
+            toggleLocalPopupItem.setSelected(showPopupsForLocalIps);
+            toggleLocalPopupItem.setOnAction(e -> {
+                showPopupsForLocalIps = toggleLocalPopupItem.isSelected();
+                updateStatus("Show popups for local IPs: " + showPopupsForLocalIps);
+            });
+
+            toolsMenu.getItems().addAll(addBlacklistItem, viewStatsItem, new SeparatorMenuItem(), toggleLocalPopupItem);
             menuBar.getMenus().add(toolsMenu);
         }
         
@@ -498,9 +513,25 @@ public class EnhancedMainApp extends Application {
                 alertList.getItems().remove(alertList.getItems().size() - 1);
             }
             
-            // Show popup for high severity alerts
+            // Show popup for high severity alerts with suppression for local IPs and rate-limiting
             if ("HIGH".equals(alert.getSeverity())) {
-                showAlertPopup(alert);
+                String sourceIp = alert.getDetails() != null && alert.getDetails().get("sourceIp") != null
+                    ? alert.getDetails().get("sourceIp").toString()
+                    : "unknown";
+
+                if (!showPopupsForLocalIps && isPrivateIp(sourceIp)) {
+                    System.out.println("Suppressed popup for private IP: " + sourceIp + " - " + alert.getTitle());
+                } else {
+                    String key = alert.getRuleName() + "|" + sourceIp;
+                    LocalDateTime last = lastPopupTimes.get(key);
+                    LocalDateTime now = LocalDateTime.now();
+                    if (last == null || java.time.Duration.between(last, now).compareTo(POPUP_MIN_INTERVAL) >= 0) {
+                        lastPopupTimes.put(key, now);
+                        showAlertPopup(alert);
+                    } else {
+                        System.out.println("Rate-limited duplicate popup for " + key + " (last shown " + last + ")");
+                    }
+                }
             }
         });
     }
@@ -531,6 +562,24 @@ public class EnhancedMainApp extends Application {
             alertDialog.setContentText(alert.getDescription());
             alertDialog.showAndWait();
         });
+    }
+
+    private boolean isPrivateIp(String ip) {
+        if (ip == null) return true;
+        try {
+            if (ip.startsWith("10.")) return true;
+            if (ip.startsWith("192.168.")) return true;
+            if (ip.startsWith("172.")) {
+                String[] parts = ip.split("\\.");
+                if (parts.length >= 2) {
+                    int second = Integer.parseInt(parts[1]);
+                    return second >= 16 && second <= 31;
+                }
+            }
+        } catch (Exception e) {
+            return true;
+        }
+        return false;
     }
     
     /**
