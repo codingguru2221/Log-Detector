@@ -49,8 +49,8 @@ public class EnhancedMainApp extends Application {
     
     // Simple authentication (enhanced)
     private static final String ADMIN_PASSWORD = "Codex";
-    private static final String ANALYST_PASSWORD = "analyst123";
-    private static final String VIEWER_PASSWORD = "viewer123";
+    private static final String ANALYST_PASSWORD = "Codex";
+    private static final String VIEWER_PASSWORD = "Codex";
     private String currentUserRole = "VIEWER";
     private boolean isAuthenticated = false;
     
@@ -201,8 +201,8 @@ public class EnhancedMainApp extends Application {
             }
         });
         
-        // Default credentials info
-    Label infoLabel = new Label("Default: Admin/Codex, Analyst/analyst123, Viewer/viewer123");
+        // Default credentials info (demo)
+        Label infoLabel = new Label("Default: Admin/Codex, Analyst/Codex, Viewer/Codex");
         infoLabel.setFont(Font.font("Arial", 10));
         infoLabel.setTextFill(Color.GRAY);
         

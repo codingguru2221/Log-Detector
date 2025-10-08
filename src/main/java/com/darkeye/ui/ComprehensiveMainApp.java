@@ -184,8 +184,8 @@ public class ComprehensiveMainApp extends Application {
             }
         });
         
-    // Default credentials info
-    Label infoLabel = new Label("Default: admin/Codex, analyst/analyst123, viewer/viewer123");
+    // Default credentials info (demo)
+    Label infoLabel = new Label("Default: admin/Codex, analyst/Codex, viewer/Codex");
         infoLabel.setFont(Font.font("Arial", 10));
         infoLabel.setTextFill(Color.GRAY);
         

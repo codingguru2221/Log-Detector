@@ -10,6 +10,11 @@ echo --------------------------------------------
 echo DarkEye - GUI launcher
 echo --------------------------------------------
 
+:: If user passes --watch, start a development watch loop that rebuilds and restarts on changes
+if "%1"=="--watch" (
+  goto DEV_WATCH
+)
+
 :: 1) If Maven is available, prefer using it (it sets up module-path correctly)
 where mvn >nul 2>&1 && goto RUN_WITH_MAVEN
 
@@ -83,3 +88,31 @@ pause
 :EOF
 endlocal
 exit /b
+
+:DEV_WATCH
+echo Development watch mode: building and restarting GUI on source changes.
+echo Requires PowerShell (available on Windows). Press Ctrl-C to stop.
+
+rem initial build/run
+mvn -DskipTests package
+if exist "target\darkeye-1.0.0-SNAPSHOT-shaded.jar" (
+  start "DarkEye GUI" cmd /c "java -jar target\darkeye-1.0.0-SNAPSHOT-shaded.jar"
+) else (
+  echo Build failed or shaded jar not found; attempting mvn javafx:run
+  start "DarkEye GUI (mvn)" cmd /c "mvn -DskipTests javafx:run"
+)
+
+rem Use PowerShell FileSystemWatcher to monitor src and resources
+powershell -NoLogo -NoProfile -Command "
+$filter = '*.java','*.fxml','*.xml','*.properties';
+$paths = @('src\main\java','src\main\resources');
+$watcher = New-Object System.IO.FileSystemWatcher;
+$watcher.Path = $paths[0];
+$watcher.IncludeSubdirectories = $true;
+$watcher.Filter = '*.*';
+$action = { Write-Host 'Change detected: rebuilding...' ; Start-Sleep -Seconds 1 ; cmd /c 'mvn -DskipTests package' | Out-Null ; Stop-Process -Name java -ErrorAction SilentlyContinue ; Start-Sleep -Milliseconds 500 ; if (Test-Path 'target\darkeye-1.0.0-SNAPSHOT-shaded.jar') { Start-Process -FilePath 'java' -ArgumentList '-jar','target\darkeye-1.0.0-SNAPSHOT-shaded.jar' } }
+[System.IO.FileSystemWatcher]::new($paths[0], '*.*') | ForEach-Object { $_.IncludeSubdirectories = $true; Register-ObjectEvent -InputObject $_ -EventName Changed -Action $action | Out-Null }
+Write-Host 'Watching for changes. Press Ctrl-C to exit.'; while ($true) { Start-Sleep -Seconds 1 }
+"
+
+goto :EOF

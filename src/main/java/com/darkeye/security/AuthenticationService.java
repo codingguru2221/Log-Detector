@@ -59,11 +59,11 @@ public class AuthenticationService {
     // Default admin user
     addUser("admin", "Codex", Role.ADMIN);
         
-        // Default analyst user
-        addUser("analyst", "analyst123", Role.ANALYST);
+        // Default analyst user (demo password)
+        addUser("analyst", "Codex", Role.ANALYST);
         
-        // Default viewer user
-        addUser("viewer", "viewer123", Role.VIEWER);
+        // Default viewer user (demo password)
+        addUser("viewer", "Codex", Role.VIEWER);
     }
     
     /**

@@ -32,8 +32,8 @@ public class ConsoleEnhancedApp {
     
     // Authentication
     private static final String ADMIN_PASSWORD = "Codex";
-    private static final String ANALYST_PASSWORD = "analyst123";
-    private static final String VIEWER_PASSWORD = "viewer123";
+    private static final String ANALYST_PASSWORD = "Codex";
+    private static final String VIEWER_PASSWORD = "Codex";
     private String currentUserRole = "VIEWER";
     private boolean isAuthenticated = false;
     
@@ -326,9 +326,10 @@ public class ConsoleEnhancedApp {
                     }
                 } else {
                     try {
-                        com.darkeye.ui.SwingAdminApp.main(new String[0]);
+                        // Use the richer Swing dashboard fallback
+                        com.darkeye.ui.SwingDashboardApp.main(new String[0]);
                     } catch (Throwable t) {
-                        System.err.println("Failed to launch Swing fallback UI: " + t.getMessage());
+                        System.err.println("Failed to launch Swing dashboard UI: " + t.getMessage());
                     }
                 }
 

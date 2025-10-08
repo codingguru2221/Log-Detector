@@ -21,13 +21,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 // JavaFX embedding
-import javafx.application.Platform;
-import javafx.embed.swing.JFXPanel;
-import javafx.scene.Scene;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
-import javafx.scene.layout.VBox;
+// JavaFX removed to avoid compile errors when JavaFX is not on the classpath.
+// Use a simple Swing placeholder for the live chart instead.
 
 /**
  * Rich Swing dashboard implementing requested layout:
@@ -48,10 +43,12 @@ public class SwingDashboardApp {
     private JPanel alertsPanel;
     private ScheduledExecutorService generator = Executors.newSingleThreadScheduledExecutor();
     private Random random = new Random();
-    // JavaFX chart integration
-    private JFXPanel fxChartPanel;
-    private XYChart.Series<Number, Number> series;
-    private volatile int chartX = 0;
+    // Lightweight Swing chart placeholder (replaces JavaFX chart integration)
+    private JPanel fxChartPanel;
+    private javax.swing.JLabel chartLabel;
+    // chartX removed; lightweight Swing label shows points/avg instead
+    private double chartRollingSum = 0.0;
+    private int chartPoints = 0;
 
     public static void main(String[] args) {
         // Try Nimbus L&F for a modern look
@@ -173,9 +170,12 @@ public class SwingDashboardApp {
         actionsPanel.add(exportBtn);
         actionsPanel.add(quarantineBtn);
 
-    // JavaFX chart panel above actions
-    fxChartPanel = new JFXPanel();
+    // Swing chart panel above actions (placeholder)
+    fxChartPanel = new JPanel(new BorderLayout());
     fxChartPanel.setPreferredSize(new Dimension(320, 200));
+    fxChartPanel.setBorder(BorderFactory.createEmptyBorder(6,6,6,6));
+    chartLabel = new javax.swing.JLabel("No data yet", SwingConstants.CENTER);
+    fxChartPanel.add(chartLabel, BorderLayout.CENTER);
     JPanel fxContainer = new JPanel(new BorderLayout());
     fxContainer.setBorder(BorderFactory.createTitledBorder("Live Metrics"));
     fxContainer.add(fxChartPanel, BorderLayout.CENTER);
@@ -415,42 +415,22 @@ public class SwingDashboardApp {
 
     // --- JavaFX chart helpers ---
     private void initFxChart() {
-        // Ensure JavaFX platform is started
-        Platform.runLater(() -> {
-            try {
-                NumberAxis xAxis = new NumberAxis();
-                NumberAxis yAxis = new NumberAxis(0, 100, 10);
-                xAxis.setLabel("Time");
-                yAxis.setLabel("Metric Value");
-
-                LineChart<Number, Number> chart = new LineChart<>(xAxis, yAxis);
-                chart.setLegendVisible(false);
-                chart.setAnimated(false);
-                chart.setCreateSymbols(false);
-                chart.setTitle("Live Metric (simulated)");
-
-                series = new XYChart.Series<>();
-                chart.getData().add(series);
-
-                VBox root = new VBox(chart);
-                root.setSpacing(4);
-                Scene scene = new Scene(root, 320, 200);
-                fxChartPanel.setScene(scene);
-            } catch (Exception ex) {
-                ex.printStackTrace();
+        // Simple Swing placeholder initialization on the EDT
+        SwingUtilities.invokeLater(() -> {
+            if (chartLabel != null) {
+                chartLabel.setText("<html><div style='text-align:center'>Live metric<br>No data yet</div></html>");
             }
         });
     }
 
     private void pushChartPoint(double value) {
-        // push point to FX thread; keep only last 60 points
-        if (series == null) return;
-        Platform.runLater(() -> {
-            series.getData().add(new XYChart.Data<>(chartX++, value));
-            if (series.getData().size() > 60) {
-                series.getData().remove(0);
-            }
-        });
+        // Update lightweight Swing chart label with rolling average and last value
+        if (chartLabel == null) return;
+    chartRollingSum += value;
+    chartPoints++;
+        double avg = chartRollingSum / chartPoints;
+        final String txt = String.format("<html><div style='text-align:center'>Last: %.2f<br>Avg: %.2f<br>Points: %d</div></html>", value, avg, chartPoints);
+        SwingUtilities.invokeLater(() -> chartLabel.setText(txt));
     }
 
     // --- Helper classes ---

@@ -240,9 +240,10 @@ public class ConsoleMainApp {
                 System.err.println("To use the full UI, ensure JavaFX is on the runtime classpath or run the shaded jar produced by Maven.");
                 System.err.println("Falling back to the lightweight Swing admin UI.");
                 try {
-                    com.darkeye.ui.SwingAdminApp.main(new String[0]);
+                    // Launch the richer Swing dashboard fallback (replaces SwingAdminApp)
+                    com.darkeye.ui.SwingDashboardApp.main(new String[0]);
                 } catch (Throwable t) {
-                    System.err.println("Failed to launch Swing fallback UI: " + t.getMessage());
+                    System.err.println("Failed to launch Swing dashboard UI: " + t.getMessage());
                 }
 
             } catch (Throwable e) {
